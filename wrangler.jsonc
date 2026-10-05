@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "vars": {
     // Your Worker's public URL, no trailing slash. Shown after the first deploy.
-    "PUBLIC_URL": "https://brewfather-mcp.REPLACE.workers.dev"
+    "PUBLIC_URL": "https://brewfather-mcp.mike-d7d.workers.dev"
   },
   "kv_namespaces": [
     // Replace with the id from: wrangler kv namespace create OAUTH_KV
