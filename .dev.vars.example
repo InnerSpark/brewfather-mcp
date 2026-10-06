@@ -1,4 +1,3 @@
-BREWFATHER_USER_ID=
-BREWFATHER_API_KEY=
-ACCESS_PASSPHRASE=
-PUBLIC_URL=http://localhost:8787
+BREWFATHER_USER_ID= # Brewfather > Settings > Integration > API
+BREWFATHER_API_KEY= # Same screen. Scopes: recipes.read, recipes.write, inventory.read, batches.read, batches.write
+ACCESS_PASSPHRASE= # Make up a long passphrase. You type it once when connecting.

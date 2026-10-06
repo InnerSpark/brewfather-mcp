@@ -1,7 +1,7 @@
 {
   "name": "brewfather-mcp",
   "version": "1.0.0",
-  "description": "Remote MCP server for Brewfather recipes and inventory",
+  "description": "Remote MCP server for Brewfather: recipes, inventory, batches, and hydrometer readings",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
@@ -20,5 +20,21 @@
     "wrangler": "^4.147.0"
   },
   "type": "module",
-  "private": true
+  "private": true,
+  "cloudflare": {
+    "bindings": {
+      "BREWFATHER_USER_ID": {
+        "description": "Your Brewfather **User Id**. Find it in Brewfather under **Settings → Integration**, API section."
+      },
+      "BREWFATHER_API_KEY": {
+        "description": "Your Brewfather **API key** (same screen). Give it `recipes.read`, `recipes.write`, `inventory.read`, `batches.read`, and `batches.write`. Leave the delete scopes off."
+      },
+      "ACCESS_PASSPHRASE": {
+        "description": "A long passphrase you make up. You enter it once when you connect your MCP client. Save it in your password manager."
+      },
+      "OAUTH_KV": {
+        "description": "Stores sign-in tokens. Created for you."
+      }
+    }
+  }
 }

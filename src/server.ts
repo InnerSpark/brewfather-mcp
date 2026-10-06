@@ -171,6 +171,25 @@ export function buildServer(env: BfEnv): McpServer {
     wrap(({ id }) => bf(env, `/batches/${encodeURIComponent(id)}/brewtracker`)),
   );
 
+  server.registerTool(
+    "set_batch_status",
+    {
+      description: [
+        "Change a batch's status. This is the ONLY batch write tool; there is no delete.",
+        "To remove, retire, or 'delete' a batch, set status to Archived. It hides the batch and can be undone by setting another status.",
+        "Confirm the batch name and new status with the user before calling.",
+      ].join(" "),
+      inputSchema: {
+        id: z.string().describe("Batch _id"),
+        status: z.enum(BATCH_STATUSES),
+      },
+      annotations: { destructiveHint: false, idempotentHint: true },
+    },
+    wrap(({ id, status }) =>
+      bf(env, `/batches/${encodeURIComponent(id)}`, { method: "PATCH", body: { status } }),
+    ),
+  );
+
   return server;
 }
 

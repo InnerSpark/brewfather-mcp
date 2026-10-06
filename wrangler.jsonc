@@ -4,14 +4,13 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "vars": {
-    // Your Worker's public URL, no trailing slash. Shown after the first deploy.
-    "PUBLIC_URL": "https://brewfather-mcp.mike-d7d.workers.dev"
-  },
   "kv_namespaces": [
-    // Replace with the id from: wrangler kv namespace create OAUTH_KV
+    // Stores OAuth grants and tokens. The Deploy to Cloudflare button creates
+    // a new namespace for each deploy. For a manual deploy, replace the id with
+    // the one from: npx wrangler kv namespace create OAUTH_KV
     { "binding": "OAUTH_KV", "id": "a87db99052224ab1baf82d8ae4ab7188" }
   ]
-  // Secrets (set with `wrangler secret put <NAME>`, never commit):
+  // Secrets (prompted by the deploy button, or `wrangler secret put <NAME>`):
   //   BREWFATHER_USER_ID, BREWFATHER_API_KEY, ACCESS_PASSPHRASE
+  // Optional var PUBLIC_URL: only needed behind a custom domain or proxy.
 }

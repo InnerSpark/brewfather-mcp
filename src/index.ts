@@ -8,7 +8,7 @@ type Env = {
   BREWFATHER_USER_ID: string;
   BREWFATHER_API_KEY: string;
   ACCESS_PASSPHRASE: string;
-  PUBLIC_URL: string;
+  PUBLIC_URL?: string; // optional override, e.g. a custom domain
 };
 
 // MCP endpoint. Only reached with a valid OAuth token (OAuthProvider checks it).
@@ -118,20 +118,26 @@ const defaultHandler = {
   },
 };
 
-// Built on first request because the resource URL comes from env (PUBLIC_URL).
-let provider: OAuthProvider<Env> | undefined;
+// One provider per public origin. The origin comes from PUBLIC_URL if set,
+// otherwise from the request, so a fresh deploy works without config.
+const providers = new Map<string, OAuthProvider<Env>>();
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    provider ??= new OAuthProvider<Env>({
-      apiRoute: "/mcp",
-      apiHandler: mcpHandler as any,
-      defaultHandler: defaultHandler as any,
-      authorizeEndpoint: "/authorize",
-      tokenEndpoint: "/token",
-      clientRegistrationEndpoint: "/register",
-      resourceMetadata: { resource: `${env.PUBLIC_URL.replace(/\/$/, "")}/mcp`, resource_name: "Brewfather" },
-    });
+    const origin = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/$/, "");
+    let provider = providers.get(origin);
+    if (!provider) {
+      provider = new OAuthProvider<Env>({
+        apiRoute: "/mcp",
+        apiHandler: mcpHandler as any,
+        defaultHandler: defaultHandler as any,
+        authorizeEndpoint: "/authorize",
+        tokenEndpoint: "/token",
+        clientRegistrationEndpoint: "/register",
+        resourceMetadata: { resource: `${origin}/mcp`, resource_name: "Brewfather" },
+      });
+      providers.set(origin, provider);
+    }
     return provider.fetch(request, env, ctx);
   },
 };
