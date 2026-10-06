@@ -2,13 +2,23 @@
   "name": "brewfather-mcp",
   "version": "1.0.0",
   "description": "Remote MCP server for Brewfather: recipes, inventory, batches, and hydrometer readings",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "brewfather",
+    "homebrewing",
+    "cloudflare-workers",
+    "tilt-hydrometer",
+    "ispindel"
+  ],
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc -p ."
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Inner Spark Media, LLC",
+  "license": "MIT",
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^1.2.1",
     "@modelcontextprotocol/sdk": "^1.30.0",
@@ -24,7 +34,7 @@
   "cloudflare": {
     "bindings": {
       "BREWFATHER_USER_ID": {
-        "description": "Your Brewfather **User Id**. Find it in Brewfather under **Settings → Integration**, API section."
+        "description": "Your Brewfather **User Id**. Find it in Brewfather under **Settings \u2192 Integration**, API section."
       },
       "BREWFATHER_API_KEY": {
         "description": "Your Brewfather **API key** (same screen). Give it `recipes.read`, `recipes.write`, `inventory.read`, `batches.read`, and `batches.write`. Leave the delete scopes off."
@@ -36,5 +46,10 @@
         "description": "Stores sign-in tokens. Created for you."
       }
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InnerSpark/brewfather-mcp.git"
+  },
+  "homepage": "https://github.com/InnerSpark/brewfather-mcp#readme"
 }

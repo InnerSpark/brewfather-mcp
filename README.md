@@ -81,3 +81,6 @@ npm run dev                      # http://localhost:8787
 - Recipe updates overwrite the current working version. Lock a version in the app first if you want history.
 - **Custom domain:** set the `PUBLIC_URL` var to it (no trailing slash). Otherwise the URL comes from the request.
 - **Rotate the passphrase:** `npx wrangler secret put ACCESS_PASSPHRASE`. Existing tokens keep working until they expire. Clear the KV namespace to force everyone to sign in again.
+
+## License
+MIT © 2026 Inner Spark Media, LLC. See [LICENSE](LICENSE).
