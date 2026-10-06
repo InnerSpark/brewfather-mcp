@@ -1,6 +1,6 @@
 # Brewfather MCP
 
-Remote MCP server on a Cloudflare Worker. Lets any MCP client that supports remote connectors read, create, and update your Brewfather recipes and read inventory.
+Remote MCP server on a Cloudflare Worker. Lets any MCP client that supports remote connectors read, create, and update your Brewfather recipes, and read inventory, batches, and fermentation readings (Tilt, iSpindel).
 
 ## Tools
 - **list_recipes**: paged list (id, name, style, type)
@@ -8,8 +8,13 @@ Remote MCP server on a Cloudflare Worker. Lets any MCP client that supports remo
 - **create_recipe**: new recipe (metric units)
 - **update_recipe**: shallow merge; arrays (hops, fermentables, etc.) replace whole
 - **get_inventory**: fermentables, hops, yeasts, or miscs
+- **list_batches**: paged list, filter by status (Planning, Brewing, Fermenting, Conditioning, Completed, Archived)
+- **get_batch**: full batch, including measured values
+- **get_readings**: latest hydrometer reading, or recent history
+- **get_brewtracker**: brew day stage and step
 
-No delete tool, on purpose.
+## Design rule: archive over delete
+No delete tools, ever. Retiring a batch means setting its status to **Archived**, which can be undone. Recipe deletes stay manual in the Brewfather app.
 
 ## Security
 - OAuth in front of `/mcp`. Login is one passphrase (`ACCESS_PASSPHRASE`).
@@ -41,8 +46,8 @@ Needs Node 20+ and a Cloudflare account.
 3. Sign-in page opens. Enter your passphrase, hit **Allow**.
 
 ## Brewfather API key scopes
-`recipes.read`, `recipes.write`, `inventory.read`. Leave the delete scopes off.
-Key is made in Brewfather → Settings → API. One key per account.
+`recipes.read`, `recipes.write`, `inventory.read`, `batches.read`. Leave the delete scopes off.
+Key is made in Brewfather → Settings → Integration (API section). One key per account.
 
 ## Local dev
 ```

@@ -108,5 +108,79 @@ export function buildServer(env: BfEnv): McpServer {
     ),
   );
 
+  // --- Batches (read-only) ---
+
+  server.registerTool(
+    "list_batches",
+    {
+      description:
+        "List brew batches (id, name, batch number, status, brewer, brew date, recipe name). Filter by status to find what's fermenting. Use get_batch for full detail.",
+      inputSchema: {
+        status: z.enum(BATCH_STATUSES).optional().describe("Only batches with this status"),
+        ...page,
+      },
+      annotations: { readOnlyHint: true },
+    },
+    wrap(({ status, limit, start_after }) =>
+      bf(env, "/batches", { query: { status, limit, start_after, order_by: "brewDate", order_by_direction: "desc" } }),
+    ),
+  );
+
+  server.registerTool(
+    "get_batch",
+    {
+      description: `Get one batch with all fields: its recipe, measured values (OG, FG, volumes, mash pH), dates and notes. ${UNITS}`,
+      inputSchema: { id: z.string().describe("Batch _id") },
+      annotations: { readOnlyHint: true },
+    },
+    wrap(({ id }) => bf(env, `/batches/${encodeURIComponent(id)}`)),
+  );
+
+  server.registerTool(
+    "get_readings",
+    {
+      description: [
+        "Fermentation readings for a batch from a hydrometer (Tilt, iSpindel) or manual entries: gravity (SG), temp (°C), plus device battery/signal.",
+        "Default returns only the latest reading. Set history to get the most recent readings, newest first.",
+        "Times are ISO 8601 UTC.",
+      ].join(" "),
+      inputSchema: {
+        id: z.string().describe("Batch _id"),
+        history: z.boolean().optional().describe("Return recent history instead of only the latest"),
+        max: z.number().int().min(1).max(500).optional().describe("History size, default 50, max 500"),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    wrap(async ({ id, history, max }) => {
+      const bid = encodeURIComponent(id);
+      if (!history) return withIsoTime(await bf(env, `/batches/${bid}/readings/last`));
+      const all = (await bf(env, `/batches/${bid}/readings`)) as Reading[];
+      const recent = [...all].sort((a, b) => (b.time ?? 0) - (a.time ?? 0)).slice(0, max ?? 50);
+      return { total: all.length, returned: recent.length, readings: recent.map(withIsoTime) };
+    }),
+  );
+
+  server.registerTool(
+    "get_brewtracker",
+    {
+      description:
+        "Brew day tracker for a batch: current stage and step, and the full stage list. Use it to answer 'what's next' or 'how long is left' during a brew. Brewfather saves it at events, not every second, so compute time left from the step's start time.",
+      inputSchema: { id: z.string().describe("Batch _id") },
+      annotations: { readOnlyHint: true },
+    },
+    wrap(({ id }) => bf(env, `/batches/${encodeURIComponent(id)}/brewtracker`)),
+  );
+
   return server;
+}
+
+const BATCH_STATUSES = ["Planning", "Brewing", "Fermenting", "Conditioning", "Completed", "Archived"] as const;
+
+type Reading = { time?: number; [k: string]: unknown };
+
+function withIsoTime(r: unknown): unknown {
+  if (r && typeof r === "object" && typeof (r as Reading).time === "number") {
+    return { ...(r as Reading), time: new Date((r as Reading).time as number).toISOString() };
+  }
+  return r;
 }
