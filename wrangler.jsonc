@@ -4,6 +4,12 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Rate limits (per Cloudflare location, approximate). Protect the passphrase
+  // from guessing and the account's free KV write quota from anonymous abuse.
+  "ratelimits": [
+    { "name": "AUTH_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
+    { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } }
+  ],
   "kv_namespaces": [
     // Stores OAuth grants and tokens. The Deploy to Cloudflare button creates
     // a new namespace for each deploy. For a manual deploy, replace the id with
@@ -12,5 +18,8 @@
   ]
   // Secrets (prompted by the deploy button, or `wrangler secret put <NAME>`):
   //   BREWFATHER_USER_ID, BREWFATHER_API_KEY, ACCESS_PASSPHRASE
-  // Optional var PUBLIC_URL: only needed behind a custom domain or proxy.
+  // Optional vars:
+  //   PUBLIC_URL: only needed behind a custom domain or proxy.
+  //   ALLOWED_REDIRECT_HOSTS: e.g. "claude.ai,claude.com,localhost,127.0.0.1"
+  //     limits which apps can connect. Recommended.
 }
