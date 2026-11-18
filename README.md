@@ -29,8 +29,11 @@ No delete tools, ever. Retiring a batch means setting its status to **Archived**
 
 ## Security
 - You deploy your own copy. Your Brewfather key stays in your Cloudflare account as a Worker secret.
-- OAuth in front of `/mcp`. Sign-in is one passphrase you set (`ACCESS_PASSPHRASE`).
-- Wrong passphrase: 1 second delay per attempt.
+- OAuth in front of `/mcp`. Sign-in is one passphrase you set (`ACCESS_PASSPHRASE`). Use a long random one.
+- Rate limits on sign-in and the open OAuth endpoints (10 per minute per IP, plus a global cap on passphrase tries).
+- The sign-in page shows which site you go back to after you allow. If it is not your app, stop.
+- **Recommended:** set `ALLOWED_REDIRECT_HOSTS` so only your apps can connect, e.g. `claude.ai,claude.com,localhost,127.0.0.1`.
+- Pen test results: [docs/security.md](docs/security.md).
 
 ## Before you deploy: Brewfather API key
 1. Brewfather → **Settings → Integration** → API section → **Generate API-Key**
@@ -79,6 +82,7 @@ npm run dev                      # http://localhost:8787
 - Brewfather API is **metric only**: L, kg, g, °C, SG.
 - **Rate limit:** 500 calls/hour per key.
 - Recipe updates overwrite the current working version. Lock a version in the app first if you want history.
+- **KV quota:** OAuth state lives in KV. The free plan allows 1,000 KV writes per day for the whole account, shared with your other Workers.
 - **Custom domain:** set the `PUBLIC_URL` var to it (no trailing slash). Otherwise the URL comes from the request.
 - **Rotate the passphrase:** `npx wrangler secret put ACCESS_PASSPHRASE`. Existing tokens keep working until they expire. Clear the KV namespace to force everyone to sign in again.
 
